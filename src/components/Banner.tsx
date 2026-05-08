@@ -38,7 +38,7 @@ export default function Banner({ banners }: { banners?: BannerItem[] }) {
   if (slides.length === 0) return null;
 
   return (
-    <div className="relative w-full aspect-square md:aspect-[21/9] bg-white/5 overflow-hidden">
+    <div className="relative w-full aspect-[16/9] md:aspect-[21/9] bg-black overflow-hidden">
       <div 
         className="flex h-full transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
@@ -56,11 +56,11 @@ export default function Banner({ banners }: { banners?: BannerItem[] }) {
             
             <div className="z-10 text-center px-4">
               {slide.subtitle && <p className="text-primary font-medium tracking-[0.3em] text-sm mb-2 uppercase drop-shadow-md">{slide.subtitle}</p>}
-              {slide.title && <h2 className="text-4xl md:text-7xl font-bold text-white uppercase tracking-tighter drop-shadow-lg mb-6">
+              {slide.title && <h2 className="text-2xl md:text-7xl font-bold text-white uppercase tracking-tighter drop-shadow-lg mb-4 md:mb-6">
                 {slide.title}
               </h2>}
               {slide.buttonText && slide.buttonLink && (
-                <Link href={slide.buttonLink} className="inline-block bg-primary text-black px-8 py-3 rounded-full font-bold uppercase tracking-wider hover:bg-white transition-colors">
+                <Link href={slide.buttonLink} className="inline-block bg-primary text-black px-6 py-2 md:px-10 md:py-4 rounded-full font-bold uppercase tracking-wider hover:bg-white transition-colors text-xs md:text-base">
                   {slide.buttonText}
                 </Link>
               )}
