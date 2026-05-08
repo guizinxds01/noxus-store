@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "NOXUS | Catálogo Exclusivo",
   description: "Catálogo exclusivo com peças selecionadas.",
+  icons: {
+    icon: '/logo.png',
+  }
 };
 
 export default function RootLayout({
