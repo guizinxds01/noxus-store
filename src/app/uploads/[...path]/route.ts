@@ -44,17 +44,9 @@ export async function GET(
     try {
         const fallbackPath = path.join(process.cwd(), 'public', 'uploads', filePath);
         const fallbackBuffer = await readFile(fallbackPath);
-        const ext = path.extname(filePath).toLowerCase();
-        const contentType = {
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.png': 'image/png',
-            '.webp': 'image/webp'
-        }[ext] || 'image/jpeg';
-
         return new NextResponse(fallbackBuffer, {
             headers: {
-              'Content-Type': contentType,
+              'Content-Type': 'image/jpeg', // Default or detect
               'Cache-Control': 'public, max-age=31536000, immutable',
             },
           });
