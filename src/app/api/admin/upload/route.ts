@@ -32,13 +32,20 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Make filename safe
+    // Determine upload directory (support Railway volume)
+    const isProduction = process.env.NODE_ENV === 'production';
+    const storagePath = isProduction ? '/app/data/uploads' : path.join(process.cwd(), 'public', 'uploads');
+    
+    // Ensure directory exists
+    const { mkdir } = await import('fs/promises');
+    await mkdir(storagePath, { recursive: true });
+
     const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const filepath = path.join(process.cwd(), 'public', 'uploads', filename);
+    const filepath = path.join(storagePath, filename);
 
     await writeFile(filepath, buffer);
 
-    return NextResponse.json({ imageUrl: `/uploads/${filename}` });
+    return NextResponse.json({ imageUrl: `/api/uploads/${filename}` });
   } catch (error) {
     console.error('Upload Error:', error);
     return NextResponse.json({ error: 'Erro ao fazer upload da imagem.' }, { status: 500 });
