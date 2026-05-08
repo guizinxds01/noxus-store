@@ -7,9 +7,18 @@ export async function POST(req: Request) {
   try {
     const { username, password } = await req.json();
 
-    const admin = await prisma.admin.findUnique({
+    let admin = await prisma.admin.findUnique({
       where: { username }
     });
+
+    // If no admin exists at all in the database, create the default one
+    const adminCount = await prisma.admin.count();
+    if (adminCount === 0 && username === 'admin') {
+      const hashedPassword = await bcrypt.hash('123456', 10);
+      admin = await prisma.admin.create({
+        data: { username: 'admin', password: hashedPassword }
+      });
+    }
 
     if (!admin) {
       return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
