@@ -18,9 +18,9 @@ export default function Banner({ banners }: { banners?: BannerItem[] }) {
   const [current, setCurrent] = useState(0);
 
   const fallbackSlides = [
-    { id: '1', title: 'NOVA COLEÇÃO', subtitle: 'STREETWEAR ESSENTIALS', imageUrl: '', buttonText: null, buttonLink: null },
-    { id: '2', title: 'PROMOÇÃO', subtitle: 'ATÉ 50% OFF', imageUrl: '', buttonText: null, buttonLink: null },
-    { id: '3', title: 'EXCLUSIVOS', subtitle: 'PEÇAS LIMITADAS', imageUrl: '', buttonText: null, buttonLink: null },
+    { id: '1', title: 'NOVA COLEÇÃO', subtitle: 'STREETWEAR ESSENTIALS', imageUrl: '', buttonText: null, buttonLink: null, fit: 'cover' },
+    { id: '2', title: 'PROMOÇÃO', subtitle: 'ATÉ 50% OFF', imageUrl: '', buttonText: null, buttonLink: null, fit: 'cover' },
+    { id: '3', title: 'EXCLUSIVOS', subtitle: 'PEÇAS LIMITADAS', imageUrl: '', buttonText: null, buttonLink: null, fit: 'cover' },
   ];
 
   const slides = banners && banners.length > 0 ? banners : fallbackSlides;
