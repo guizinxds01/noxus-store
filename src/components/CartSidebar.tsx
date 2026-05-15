@@ -1,14 +1,39 @@
 'use client';
 
+import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { X, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 
 export default function CartSidebar({ settings }: { settings: any }) {
-  const { items, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, total, clearCart } = useCart();
+  const { items, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, total, subtotal, shipping, freeShippingThreshold, clearCart } = useCart();
+  const [cep, setCep] = useState('');
+  const [calculating, setCalculating] = useState(false);
+  const [location, setLocation] = useState<string | null>(null);
 
   if (!isCartOpen) return null;
 
   const whatsappNumber = settings?.whatsapp || '5511948108764';
+
+  const handleCalculateShipping = async () => {
+    if (cep.length !== 8) {
+      alert('CEP inválido. Digite 8 números.');
+      return;
+    }
+    setCalculating(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await res.json();
+      if (data.erro) {
+        alert('CEP não encontrado.');
+      } else {
+        setLocation(`${data.localidade} - ${data.uf}`);
+      }
+    } catch (error) {
+      alert('Erro ao calcular frete.');
+    } finally {
+      setCalculating(false);
+    }
+  };
 
   const handleCheckout = () => {
     let message = 'Olá! Gostaria de fazer o seguinte pedido:%0A%0A';
@@ -17,7 +42,12 @@ export default function CartSidebar({ settings }: { settings: any }) {
       message += `${item.quantity}x ${item.name} - R$ ${item.price.toFixed(2).replace('.', ',')}%0A`;
     });
     
-    message += `%0A*Total: R$ ${total.toFixed(2).replace('.', ',')}*`;
+    message += `%0A*Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}*`;
+    if (location) {
+      message += `%0A*Entrega para: ${location}*`;
+    }
+    message += `%0A*Frete: ${shipping === 0 ? 'Grátis' : `R$ ${shipping.toFixed(2).replace('.', ',')}`}*`;
+    message += `%0A%0A*Total: R$ ${total.toFixed(2).replace('.', ',')}*`;
     
     const url = `https://wa.me/${whatsappNumber}?text=${message}`;
     window.open(url, '_blank');
@@ -108,14 +138,61 @@ export default function CartSidebar({ settings }: { settings: any }) {
               </div>
             ))
           )}
+
+          {/* Cálculo de Frete UI */}
+          {items.length > 0 && (
+            <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/5 space-y-3">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Calcular Frete</label>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={cep}
+                  onChange={(e) => setCep(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                  placeholder="Seu CEP (ex: 01001000)"
+                  className="flex-1 bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors"
+                />
+                <button 
+                  onClick={handleCalculateShipping}
+                  disabled={calculating}
+                  className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
+                >
+                  {calculating ? '...' : 'Calcular'}
+                </button>
+              </div>
+              {location && (
+                <div className="flex items-center justify-between text-[10px] text-primary animate-in fade-in slide-in-from-top-1">
+                  <span className="uppercase tracking-wider font-bold">Entrega: {location}</span>
+                  <span className="font-bold">{shipping === 0 ? 'GRÁTIS' : `R$ ${shipping.toFixed(2).replace('.', ',')}`}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer Checkout */}
         {items.length > 0 && (
           <div className="border-t border-white/5 p-6 bg-card space-y-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400 uppercase tracking-wider">Subtotal</span>
-              <span className="font-bold text-white text-lg">R$ {total.toFixed(2).replace('.', ',')}</span>
+            <div className="space-y-2 border-b border-white/5 pb-4 mb-4">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-400 uppercase tracking-wider">Subtotal</span>
+                <span className="text-white">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-400 uppercase tracking-wider">Frete</span>
+                <span className={shipping === 0 ? "text-primary font-bold" : "text-white"}>
+                  {shipping === 0 ? 'GRÁTIS' : `R$ ${shipping.toFixed(2).replace('.', ',')}`}
+                </span>
+              </div>
+              {shipping > 0 && freeShippingThreshold > 0 && (
+                <p className="text-[10px] text-gray-500 text-right uppercase tracking-tighter italic">
+                  Faltam R$ {(freeShippingThreshold - subtotal).toFixed(2)} para frete grátis
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-bold uppercase tracking-wider">Total</span>
+              <span className="font-bold text-primary text-2xl">R$ {total.toFixed(2).replace('.', ',')}</span>
             </div>
             
             <button 

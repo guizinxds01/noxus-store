@@ -41,6 +41,8 @@ export async function PUT(req: Request) {
         midBannerUrl: body.midBannerUrl,
         midBannerTitle: body.midBannerTitle,
         midBannerLink: body.midBannerLink,
+        shippingFee: body.shippingFee ? parseFloat(body.shippingFee) : 0,
+        freeShippingThreshold: body.freeShippingThreshold ? parseFloat(body.freeShippingThreshold) : 0,
       }
     });
     return NextResponse.json(settings);

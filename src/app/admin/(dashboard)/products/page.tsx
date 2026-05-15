@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, X, Copy, Eye, EyeOff, Star } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Copy, Eye, EyeOff, Star, Search } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -24,6 +24,7 @@ interface Product {
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -209,16 +210,34 @@ export default function AdminProducts() {
     if (res.ok) fetchProducts();
   };
 
+  const filteredProducts = products.filter(product => 
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (product.sku && product.sku.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <h2 className="text-2xl font-bold uppercase tracking-widest text-white">Gerenciar Produtos</h2>
-        <button 
-          onClick={() => openModal()}
-          className="bg-primary text-black px-4 py-2 rounded-lg font-bold uppercase tracking-wider text-sm flex items-center gap-2 hover:bg-white transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Novo Produto
-        </button>
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <input
+              type="text"
+              placeholder="Buscar produtos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors"
+            />
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          </div>
+          <button 
+            onClick={() => openModal()}
+            className="bg-primary text-black px-4 py-2 rounded-lg font-bold uppercase tracking-wider text-sm flex items-center gap-2 hover:bg-white transition-colors shrink-0"
+          >
+            <Plus className="w-4 h-4" /> Novo Produto
+          </button>
+        </div>
       </div>
 
       <div className="bg-card border border-white/5 rounded-xl overflow-hidden">
@@ -236,12 +255,12 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {products.length === 0 ? (
+              {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">Nenhum produto cadastrado</td>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">Nenhum produto encontrado</td>
                 </tr>
               ) : (
-                products.map((product) => (
+                filteredProducts.map((product) => (
                   <tr key={product.id} className={`border-b border-white/5 hover:bg-white/[0.02] transition-colors ${!product.active ? 'opacity-50' : ''}`}>
                     <td className="p-4 font-medium text-white flex items-center gap-2">
                       {product.featured && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}

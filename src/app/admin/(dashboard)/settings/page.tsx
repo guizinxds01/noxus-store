@@ -13,7 +13,9 @@ export default function SettingsPage() {
     tiktok: '',
     midBannerUrl: '',
     midBannerTitle: '',
-    midBannerLink: ''
+    midBannerLink: '',
+    shippingFee: 0,
+    freeShippingThreshold: 0
   });
   const [loading, setLoading] = useState(true);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -35,7 +37,9 @@ export default function SettingsPage() {
         tiktok: data.tiktok || '',
         midBannerUrl: data.midBannerUrl || '',
         midBannerTitle: data.midBannerTitle || '',
-        midBannerLink: data.midBannerLink || ''
+        midBannerLink: data.midBannerLink || '',
+        shippingFee: data.shippingFee || 0,
+        freeShippingThreshold: data.freeShippingThreshold || 0
       });
     }
     setLoading(false);
@@ -253,6 +257,36 @@ export default function SettingsPage() {
                   placeholder="Ex: /?categoria=Promoções#catalogo"
                 />
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Configurações de Frete */}
+        <section className="bg-card border border-white/5 p-6 rounded-xl space-y-6">
+          <h3 className="text-lg font-bold text-white uppercase tracking-wider border-b border-white/5 pb-4">Configurações de Frete</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Valor Fixo do Frete (R$)</label>
+              <input 
+                type="number" 
+                value={formData.shippingFee}
+                onChange={(e) => setFormData({...formData, shippingFee: parseFloat(e.target.value)})}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                placeholder="Ex: 20"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Frete Grátis a partir de (R$)</label>
+              <input 
+                type="number" 
+                value={formData.freeShippingThreshold}
+                onChange={(e) => setFormData({...formData, freeShippingThreshold: parseFloat(e.target.value)})}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                placeholder="Ex: 300"
+              />
+              <p className="text-xs text-gray-500 mt-2">Coloque 0 para desativar frete grátis.</p>
             </div>
           </div>
         </section>

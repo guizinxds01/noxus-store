@@ -19,6 +19,9 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
   total: number;
+  subtotal: number;
+  shipping: number;
+  freeShippingThreshold: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -26,6 +29,17 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [settings, setSettings] = useState({ shippingFee: 0, freeShippingThreshold: 0 });
+
+  useEffect(() => {
+    fetch('/api/admin/settings')
+      .then(res => res.json())
+      .then(data => setSettings({
+        shippingFee: data.shippingFee || 0,
+        freeShippingThreshold: data.freeShippingThreshold || 0
+      }))
+      .catch(() => {});
+  }, []);
 
   // Load from local storage
   useEffect(() => {
@@ -69,10 +83,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => setItems([]);
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = subtotal > 0 && (settings.freeShippingThreshold === 0 || subtotal < settings.freeShippingThreshold) 
+    ? settings.shippingFee 
+    : 0;
+  const total = subtotal + shipping;
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, isCartOpen, setIsCartOpen, total }}>
+    <CartContext.Provider value={{ 
+      items, 
+      addToCart, 
+      removeFromCart, 
+      updateQuantity, 
+      clearCart, 
+      isCartOpen, 
+      setIsCartOpen, 
+      total,
+      subtotal,
+      shipping,
+      freeShippingThreshold: settings.freeShippingThreshold
+    }}>
       {children}
     </CartContext.Provider>
   );

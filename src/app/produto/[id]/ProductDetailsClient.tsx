@@ -7,7 +7,11 @@ import { useCart } from '@/contexts/CartContext';
 
 export default function ProductDetailsClient({ product, gallery }: { product: any, gallery: string[] }) {
   const { addToCart } = useCart();
-  const [activeImage, setActiveImage] = useState(gallery[0]);
+  const [activeMedia, setActiveMedia] = useState<{type: 'video' | 'image', url: string}>(
+    product.videoUrl 
+      ? { type: 'video', url: product.videoUrl } 
+      : { type: 'image', url: gallery[0] }
+  );
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   
   const sizes = product.sizes ? product.sizes.split(',').map((s: string) => s.trim()) : [];
@@ -33,9 +37,10 @@ export default function ProductDetailsClient({ product, gallery }: { product: an
       {/* Esquerda: Galeria */}
       <div className="space-y-4">
         <div className="aspect-[4/5] relative bg-black border border-white/5 rounded-2xl overflow-hidden group">
-          {product.videoUrl ? (
+          {activeMedia.type === 'video' && activeMedia.url ? (
             <video 
-              src={product.videoUrl} 
+              key={activeMedia.url} // Força o react a recriar o elemento se a URL mudar
+              src={activeMedia.url} 
               autoPlay 
               loop 
               muted 
@@ -44,7 +49,7 @@ export default function ProductDetailsClient({ product, gallery }: { product: an
             />
           ) : (
             <Image 
-              src={activeImage} 
+              src={activeMedia.url} 
               alt={product.name} 
               fill 
               quality={100}
@@ -60,13 +65,26 @@ export default function ProductDetailsClient({ product, gallery }: { product: an
         </div>
         
         {/* Thumbnails */}
-        {gallery.length > 1 && (
+        {(gallery.length > 1 || product.videoUrl) && (
           <div className="flex gap-4 overflow-x-auto pb-2">
+            {product.videoUrl && (
+              <button 
+                onClick={() => setActiveMedia({ type: 'video', url: product.videoUrl })}
+                className={`relative w-20 h-24 shrink-0 rounded-lg overflow-hidden border-2 transition-colors ${activeMedia.type === 'video' ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'}`}
+              >
+                <video src={product.videoUrl} className="w-full h-full object-cover" muted playsInline />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <div className="w-6 h-6 rounded-full bg-white/80 flex items-center justify-center pl-0.5">
+                    <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  </div>
+                </div>
+              </button>
+            )}
             {gallery.map((img, idx) => (
               <button 
                 key={idx}
-                onClick={() => setActiveImage(img)}
-                className={`relative w-20 h-24 shrink-0 rounded-lg overflow-hidden border-2 transition-colors ${activeImage === img ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                onClick={() => setActiveMedia({ type: 'image', url: img })}
+                className={`relative w-20 h-24 shrink-0 rounded-lg overflow-hidden border-2 transition-colors ${activeMedia.type === 'image' && activeMedia.url === img ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
                 <Image src={img} alt={`Thumb ${idx}`} fill className="object-cover" />
               </button>
