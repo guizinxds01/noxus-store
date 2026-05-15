@@ -1,0 +1,9 @@
+{
+  "products": [],
+  "banners": [],
+  "categories": [
+    { "id": "bdce97ab-c96a-4d87-86f8-19556ce83ff0", "name": "MOLETONS", "imageUrl": "/uploads/1778205017052-retro_brasil.jpeg", "order": 1 },
+    { "id": "43006ed1-0bc9-41c2-ba4d-c4498fc8bd00", "name": "CAMISETAS", "imageUrl": "/uploads/1778205049349-TN_PLUS_TRIPLE_BLACK.jpg", "order": 2 },
+    { "id": "da131ccf-4539-45bf-9d88-ebef5f2321e7", "name": "TÊNIS", "imageUrl": "/uploads/1778205039491-Camisa_do_brasil_demonio.jpg", "order": 3 }
+  ]
+}
