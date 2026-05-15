@@ -10,7 +10,7 @@ try {
     shouldCopy = true;
   } else {
     const stats = fs.statSync(destPath);
-    if (stats.size < 20000) { // Empty SQLite DB is around 16KB
+    if (stats.size < 45000) { // Empty SQLite DB with schema is around 24KB - 32KB
       shouldCopy = true;
     }
   }
