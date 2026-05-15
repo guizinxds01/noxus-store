@@ -6,9 +6,11 @@ import ProductCard from '@/components/ProductCard';
 import ProductCarousel from '@/components/ProductCarousel';
 import HowToBuy from '@/components/HowToBuy';
 import { prisma } from '@/lib/prisma';
+import { applyShield } from '@/lib/dbShield';
 import Link from 'next/link';
 
 export default async function Home(props: { searchParams: Promise<{ categoria?: string, subcategoria?: string, busca?: string }> }) {
+  await applyShield(prisma);
   const searchParams = await props.searchParams;
   const categoria = searchParams.categoria;
   const subcategoria = searchParams.subcategoria;
@@ -39,10 +41,11 @@ export default async function Home(props: { searchParams: Promise<{ categoria?: 
   const displayFeatured = featuredProducts.length > 0 ? featuredProducts : products.slice(0, 8);
 
   // Fetch Settings
-  let settings = await prisma.settings.findUnique({ where: { id: 'global' } });
-  if (!settings) {
-    settings = await prisma.settings.create({ data: { id: 'global' } });
-  }
+  const settings = await prisma.settings.upsert({
+    where: { id: 'global' },
+    update: {},
+    create: { id: 'global' }
+  });
 
   // Fetch Banners
   const banners = await prisma.banner.findMany({
